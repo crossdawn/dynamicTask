@@ -1,0 +1,93 @@
+.bg {
+    background-color: #f1f4f6;
+    padding-top: 70px;
+    padding-bottom: 50px
+}
+
+#jm-login {
+    display: block;
+    width: 990px;
+    height: 615px;
+    margin: 0 auto;
+    background-color: #fff
+}
+
+#jm-login form {
+    width: 365px;
+    height: auto;
+    text-align: center;
+    margin-right: 95px;
+    margin-top: 125px;
+    border: 1px solid #ccc;
+    float: right
+}
+
+#jm-login .input {
+    width: 300px;
+    height: 38px;
+    margin-bottom: 16px;
+    border-redius: 5px;
+    padding-left: 5px
+}
+
+#jm-login .head {
+    display: block;
+    color: #1e81e7;
+    font-size: 20px;
+    margin-left: 145px;
+    margin-top: 35px;
+    margin-bottom: 30px
+}
+
+#jm-login .confirm {
+    display: inline-block;
+    width: 150px;
+    height: 38px;
+    padding-left: 5px
+}
+
+#jm-login .confirm-pic {
+    display: inline-block;
+    width: 120px;
+    height: 38px;
+    margin-left: 25px;
+    vertical-align: bottom
+}
+
+#jm-login .register {
+    display: block;
+    text-align: center;
+    font-size: 22px;
+    width: 300px;
+    line-height: 38px;
+    color: #fff;
+    background-color: #1e81e7;
+    margin: 16px auto
+}
+
+#jm-login #span {
+    display: inline-block;
+    margin: 10px auto
+}
+
+#jm-login a {
+    color: #00bfff
+}
+
+#reg-pc {
+    width: 320px;
+    height: 320px;
+    margin-left: 105px;
+    margin-top: 145px
+}
+
+#span .left {
+    display: block;
+    float: left;
+    margin-right: 100px
+}
+
+#span .right {
+    float: right;
+    display: block
+}

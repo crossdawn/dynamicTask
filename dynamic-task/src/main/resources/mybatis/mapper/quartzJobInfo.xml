@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dynamic.task.dao.QuartzJobInfoDao">
+    <select id="selectQuartzInfo" resultType="quartzJobInfo" parameterType="java.util.Map">
+        SELECT
+            sched_name,entry_id,trigger_name,
+            trigger_group,instance_name,
+            fired_time,sched_time,priority,
+            state,job_name,job_group,
+            is_nonconcurrent,requests_recovery
+        FROM
+            QRTZ_FIRED_TRIGGERS ft
+        WHERE
+            ft.TRIGGER_NAME = #{jobName};
+    </select>
+</mapper>

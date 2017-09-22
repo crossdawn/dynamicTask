@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/aop 
+		http://www.springframework.org/schema/aop/spring-aop-4.0.xsd 
+		http://www.springframework.org/schema/tx 
+		http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+	<bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="shutdown">
+		<constructor-arg>
+			<bean class="com.zaxxer.hikari.HikariConfig">
+				<property name="jdbcUrl" value="${jdbc.url}" />
+				<property name="driverClassName" value="${jdbc.hikari.driver}" />
+				<property name="username" value="${jdbc.username}" />
+				<property name="password" value="${jdbc.password}" />
+				<property name="connectionTestQuery" value="SELECT 1" />
+				<property name="connectionTimeout" value="${jdbc.hikari.connectionTimeout}" />
+				<property name="idleTimeout" value="${jdbc.hikari.idleTimeout}" />
+				<property name="maximumPoolSize" value="${jdbc.hikari.maximumPoolSize}" />
+			</bean>
+		</constructor-arg>
+	</bean>
+
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.dynamic.task.dao"/>
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+	</bean>
+
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="typeHandlersPackage" value="com.demo.sbadmin.typehandler"/>
+		<property name="mapperLocations">
+			<array>
+				<value>classpath*:mybatis/mapper/*.xml</value>
+			</array>
+		</property>
+		<property name="configLocation" value="classpath:mybatis/sqlConfig.xml" />
+	</bean>
+
+	<bean id="transactionManager_quartz" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<tx:annotation-driven transaction-manager="transactionManager_quartz"/>
+
+	<tx:advice id="txAdvice_quartz" transaction-manager="transactionManager_quartz">
+		<tx:attributes>
+			<tx:method name="save*" propagation="REQUIRED" read-only="false" rollback-for="Exception"/>
+			<tx:method name="add*" propagation="REQUIRED" read-only="false" rollback-for="Exception"/>
+			<tx:method name="create*" propagation="REQUIRED" read-only="false" rollback-for="Exception"/>
+			<tx:method name="insert*" propagation="REQUIRED" read-only="false" rollback-for="Exception"/>
+			<tx:method name="update*" propagation="REQUIRED" read-only="false" rollback-for="Exception"/>
+			<tx:method name="delete*" propagation="REQUIRED" read-only="false" rollback-for="Exception"/>
+			<tx:method name="executeUpdate" propagation="REQUIRED" read-only="false" rollback-for="Exception"/>
+			<tx:method name="*" read-only="true" propagation="SUPPORTS"/>
+		</tx:attributes>
+	</tx:advice>
+
+	<!-- AOP配置 -->
+	<aop:config proxy-target-class="true">
+		<!-- 定义一个切入点 -->
+		<aop:pointcut id="txoperation_quartz" expression="execution(* com.dynamic.task.service.impl.*.*(..))" />
+		<!-- 切入点事务通知 -->
+		<aop:advisor pointcut-ref="txoperation_quartz" advice-ref="txAdvice_quartz" />
+	</aop:config>
+
+	<!-- Job信息会被上报并持久化到mysql中，多个集群节点中竞争Job锁，只会有一台执行 -->
+	<bean id="quartzScheduler" lazy-init="true" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="autoStartup" value="true" />
+		<property name="schedulerName" value="quartzScheduler" />
+		<property name="applicationContextSchedulerContextKey"  value="applicationContextKey" />
+		<property name="configLocation" value="classpath:config/quartz.properties"/>
+		<property name="triggers">
+			<list>
+				<!-- <ref bean="job02Trigger" /> -->
+			</list>
+		</property>
+	</bean>
+
+	<!-- 调度器 -->
+	<bean id="dynamicSchedulerUtil" class="com.dynamic.task.quartz.DynamicSchedulerUtil">
+		<property name="scheduler" ref="quartzScheduler"/>
+	</bean>
+
+</beans>
